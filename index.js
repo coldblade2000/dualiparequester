@@ -69,8 +69,9 @@ if (!accountSid || !authToken) {
 }
 
 // Code that runs once users should be notified
-const triggerNotification = async (numComprar, numAgotados) => {
+const triggerNotification = async (numComprar, numAgotados, response) => {
     logger.info(`A change has been detected! Number of .botoncompras found: ${numComprar}. Number of .botonagotado found: ${numAgotados}. Triggering calls and messages`)
+    logger.debug(`The response: ${JSON.stringify(response)}`)
     try {
         const call = await twilioClient.calls.create(
             {
@@ -113,8 +114,8 @@ while (continueLoop) {
         let $ = cheerio.load(htmlContent)
         let numAgotados = $(".botonagotado").length
         let numComprar = $(".botoncompra").length
-        if (numAgotados === 0 || numComprar !== 0) {
-            triggerNotification(numComprar, numAgotados)
+        if (numComprar !== 0 && response.status === 200) {
+            triggerNotification(numComprar, numAgotados, response)
         } else {
             logger.log("debug", "No favorable condition change found")
         }
